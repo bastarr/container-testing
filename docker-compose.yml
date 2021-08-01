@@ -1,0 +1,53 @@
+version: '3.7'
+
+services:
+
+    chrome:
+        container_name: chrome
+        hostname: chrome
+        image: selenium/standalone-chrome:latest
+        networks: 
+            - testnet
+        ports:
+            - 4444:4444
+            - 5900:5900
+
+    backend:
+        container_name: backend
+        build: ./react-node-app
+        ports:
+            - 3001:3001
+        stdin_open: true
+        networks: 
+            - testnet
+        command: npm start
+
+    frontend:
+        container_name: frontend
+        build: ./react-client-app
+        depends_on: 
+            - backend
+        ports:
+            - 3000:3000
+        stdin_open: true
+        networks:
+            - testnet
+        environment: 
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+        command: npm start
+
+    xunit:
+        container_name: xunit
+        build: ./core-xunit-app
+        depends_on: 
+            - backend
+            - frontend
+            - chrome
+        volumes:
+                - ./docker_data/results:/results
+        networks: 
+            - testnet
+        command: dotnet test -l:trx;LogFileName=/results/output.xml
+
+networks:
+    testnet:
