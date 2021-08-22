@@ -25,3 +25,4 @@ yarn-error.log*
 # dotnet
 /**/*/bin
 /**/*/obj
+docker_data/results/*
